@@ -243,12 +243,20 @@ class ImageBot:
                     except subprocess.CalledProcessError:
                         print("Pull не удался, продолжаем с локальными изменениями")
                 
+                # Проверяем статус git
+                status_result = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True, check=True)
+                print(f"Git status: {status_result.stdout.strip()}")
+                if not status_result.stdout.strip():
+                    print("Нет изменений для коммита")
+                    return
+                
                 # Добавляем файлы
                 subprocess.run(['git', 'add', '.'], check=True)
                 
                 # Коммитим
                 commit_message = f"Add new image: {filename}"
                 subprocess.run(['git', 'commit', '-m', commit_message], check=True)
+                print(f"Успешно закоммитили: {filename}")
                 
                 # Пушим
                 try:
