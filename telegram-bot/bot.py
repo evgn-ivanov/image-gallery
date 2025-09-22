@@ -70,12 +70,7 @@ class ImageBot:
     async def start_command(self, update: Update, context: ContextTypes.DEFAULT_TYPE):
         """Обработчик команды /start"""
         welcome_message = """
-🖼️ Добро пожаловать в Image Gallery Bot!
-
-Просто отправьте мне картинку, и я добавлю её в галерею!
-
-Команды:
-/help - показать справку
+🖼️ Привет, отправь мемокартинку и над ней посмеётся человек 5 (или больше)
         """
         await update.message.reply_text(welcome_message)
     
@@ -140,9 +135,8 @@ class ImageBot:
             
             # Уведомляем пользователя
             await processing_msg.edit_text(
-                f"✅ Картинка успешно добавлена в галерею!\n\n"
-                f"📁 Файл: {filename}\n"
-                f"🌐 Сайт: https://your-username.github.io/image-gallery"
+                f"✅ Прекол загружен, проверяй на сайте 🌐\n"
+                f"https://evgn-ivanov.github.io/image-gallery/"
             )
             
         except Exception as e:
