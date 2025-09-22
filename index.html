@@ -73,6 +73,37 @@
             }
         });
 
+        // Load current image on page load
+        window.addEventListener('load', async () => {
+            await loadCurrentImage();
+        });
+
+        async function loadCurrentImage() {
+            try {
+                // Try to load current-image.jpg first
+                let imageUrl = './current-image.jpg';
+                let response = await fetch(imageUrl, { method: 'HEAD' });
+                
+                if (!response.ok) {
+                    // Try current-image.png
+                    imageUrl = './current-image.png';
+                    response = await fetch(imageUrl, { method: 'HEAD' });
+                }
+                
+                if (!response.ok) {
+                    // Try current-image.gif
+                    imageUrl = './current-image.gif';
+                    response = await fetch(imageUrl, { method: 'HEAD' });
+                }
+                
+                if (response.ok) {
+                    displayImage(imageUrl);
+                }
+            } catch (error) {
+                console.log('No current image found');
+            }
+        }
+
         function handleFile(file) {
             if (!file.type.startsWith('image/')) {
                 alert('Пожалуйста, выберите картинку!');
@@ -83,15 +114,23 @@
             uploadButton.innerHTML = 'загружаем...';
             uploadButton.disabled = true;
 
-            // Create FormData
-            const formData = new FormData();
-            formData.append('image', file);
-
-            // Upload to GitHub (this would need to be implemented)
-            // For now, just display the image locally
+            // Convert file to base64
             const reader = new FileReader();
-            reader.onload = (e) => {
-                displayImage(e.target.result);
+            reader.onload = async (e) => {
+                const base64Image = e.target.result;
+                
+                // Display image immediately
+                displayImage(base64Image);
+                
+                // Save to GitHub
+                try {
+                    await saveToGitHub(file, base64Image);
+                    alert('✅ Прекол загружен! Теперь его видят все!');
+                } catch (error) {
+                    console.error('Ошибка при сохранении:', error);
+                    alert('❌ Ошибка при сохранении. Попробуйте еще раз.');
+                }
+                
                 resetUploadButton();
             };
             reader.readAsDataURL(file);
@@ -101,6 +140,9 @@
             currentImage.src = imageSrc;
             currentImage.classList.remove('hidden');
             noImage.classList.add('hidden');
+            
+            // Save image to localStorage
+            localStorage.setItem('lastImage', imageSrc);
             
             // Update container aspect ratio based on image
             currentImage.onload = function() {
@@ -112,6 +154,80 @@
         function resetUploadButton() {
             uploadButton.innerHTML = 'загрузить с телефона';
             uploadButton.disabled = false;
+        }
+
+        async function saveToGitHub(file, base64Image) {
+            // GitHub API configuration
+            const GITHUB_TOKEN = prompt('Введите GitHub Personal Access Token:');
+            if (!GITHUB_TOKEN) {
+                throw new Error('Токен не предоставлен');
+            }
+            const REPO_OWNER = 'evgn-ivanov';
+            const REPO_NAME = 'image-gallery';
+            const BRANCH = 'main';
+            
+            // Generate filename
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            const extension = file.name.split('.').pop() || 'jpg';
+            const filename = `current-image.${extension}`;
+            
+            // Create commit message
+            const commitMessage = `Update current image: ${timestamp}`;
+            
+            // Get current file SHA (if exists)
+            let fileSHA = null;
+            try {
+                const getFileResponse = await fetch(
+                    `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filename}`,
+                    {
+                        headers: {
+                            'Authorization': `token ${GITHUB_TOKEN}`,
+                            'Accept': 'application/vnd.github.v3+json'
+                        }
+                    }
+                );
+                
+                if (getFileResponse.ok) {
+                    const fileData = await getFileResponse.json();
+                    fileSHA = fileData.sha;
+                }
+            } catch (error) {
+                console.log('File does not exist, will create new one');
+            }
+            
+            // Convert base64 to binary
+            const base64Data = base64Image.split(',')[1];
+            
+            // Create file content
+            const fileContent = {
+                message: commitMessage,
+                content: base64Data,
+                branch: BRANCH
+            };
+            
+            if (fileSHA) {
+                fileContent.sha = fileSHA;
+            }
+            
+            // Upload to GitHub
+            const response = await fetch(
+                `https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/contents/${filename}`,
+                {
+                    method: 'PUT',
+                    headers: {
+                        'Authorization': `token ${GITHUB_TOKEN}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(fileContent)
+                }
+            );
+            
+            if (!response.ok) {
+                throw new Error(`GitHub API error: ${response.status}`);
+            }
+            
+            return await response.json();
         }
     </script>
 </body>
