@@ -266,14 +266,26 @@ class ImageBot:
         """Запуск бота"""
         print("🤖 Запуск Telegram бота...")
         
-        # Принудительно завершаем все webhook'и
+        # Принудительно завершаем все webhook'и и процессы
         try:
             import requests
+            
+            # Удаляем webhook
             webhook_url = f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook"
             response = requests.post(webhook_url, data={'drop_pending_updates': True})
             print(f"Webhook удален: {response.status_code}")
+            
+            # Принудительно завершаем все getUpdates запросы
+            close_url = f"https://api.telegram.org/bot{BOT_TOKEN}/close"
+            close_response = requests.post(close_url)
+            print(f"Все соединения закрыты: {close_response.status_code}")
+            
+            # Ждем немного для завершения процессов
+            import time
+            time.sleep(3)
+            
         except Exception as e:
-            print(f"Ошибка при удалении webhook: {e}")
+            print(f"Ошибка при очистке: {e}")
         
         # Запускаем HTTP сервер в отдельном потоке для Render
         port = int(os.environ.get('PORT', 8000))
@@ -298,9 +310,19 @@ class ImageBot:
                 
                 if "Conflict" in str(e) and "getUpdates" in str(e):
                     print("Обнаружен конфликт с другим экземпляром бота")
-                    # Ждем дольше при конфликте
+                    # Ждем дольше при конфликте и принудительно очищаем
                     import time
-                    time.sleep(10)
+                    time.sleep(15)
+                    
+                    # Еще раз принудительно очищаем
+                    try:
+                        import requests
+                        close_url = f"https://api.telegram.org/bot{BOT_TOKEN}/close"
+                        requests.post(close_url)
+                        print("Принудительно закрыли все соединения")
+                        time.sleep(5)
+                    except:
+                        pass
                 else:
                     import time
                     time.sleep(5)
