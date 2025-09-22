@@ -200,6 +200,23 @@ class ImageBot:
                     remote_url = f"https://{GITHUB_USERNAME}:{GITHUB_TOKEN}@github.com/{GITHUB_REPO}.git"
                     subprocess.run(['git', 'remote', 'add', 'origin', remote_url], check=True)
                 
+                # Проверяем состояние HEAD и переключаемся на main если нужно
+                try:
+                    result = subprocess.run(['git', 'branch', '--show-current'], capture_output=True, text=True, check=True)
+                    current_branch = result.stdout.strip()
+                    if not current_branch or current_branch == '':
+                        # Мы в detached HEAD, переключаемся на main
+                        subprocess.run(['git', 'checkout', '-b', 'main'], check=True)
+                        print("Переключились на ветку main")
+                    elif current_branch != 'main':
+                        # Переключаемся на main
+                        subprocess.run(['git', 'checkout', 'main'], check=True)
+                        print(f"Переключились с {current_branch} на main")
+                except subprocess.CalledProcessError:
+                    # Создаем ветку main если её нет
+                    subprocess.run(['git', 'checkout', '-b', 'main'], check=True)
+                    print("Создали ветку main")
+                
                 # Добавляем файлы
                 subprocess.run(['git', 'add', '.'], check=True)
                 
