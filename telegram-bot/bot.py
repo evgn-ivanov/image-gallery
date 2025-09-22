@@ -178,6 +178,14 @@ class ImageBot:
                 subprocess.run(['git', 'config', 'user.name', GITHUB_USERNAME], check=True)
                 subprocess.run(['git', 'config', 'user.email', GITHUB_EMAIL], check=True)
                 
+                # Проверяем и настраиваем remote если нужно
+                try:
+                    subprocess.run(['git', 'remote', 'get-url', 'origin'], check=True, capture_output=True)
+                except subprocess.CalledProcessError:
+                    # Добавляем remote если его нет
+                    remote_url = f"https://{GITHUB_USERNAME}:{GITHUB_TOKEN}@github.com/{GITHUB_REPO}.git"
+                    subprocess.run(['git', 'remote', 'add', 'origin', remote_url], check=True)
+                
                 # Добавляем файлы
                 subprocess.run(['git', 'add', '.'], check=True)
                 
@@ -202,6 +210,9 @@ class ImageBot:
     def run(self):
         """Запуск бота"""
         print("🤖 Запуск Telegram бота...")
+        # Для Render добавляем порт (хотя он не используется для polling)
+        port = int(os.environ.get('PORT', 8000))
+        print(f"🌐 Порт: {port}")
         self.app.run_polling()
 
 if __name__ == '__main__':
