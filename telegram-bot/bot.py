@@ -11,6 +11,19 @@ from datetime import datetime
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
 
+# Загружаем переменные окружения из .env файла
+def load_env():
+    env_file = '.env'
+    if os.path.exists(env_file):
+        with open(env_file, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    key, value = line.split('=', 1)
+                    os.environ[key] = value
+
+load_env()
+
 # Конфигурация
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
