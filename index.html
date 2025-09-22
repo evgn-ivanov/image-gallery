@@ -4,367 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Прекол дня</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
-            background: white;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .container {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            padding: 32px 16px;
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .header {
-            text-align: center;
-        }
-
-        .title {
-            font-size: 24px;
-            font-weight: 900;
-            font-style: italic;
-            color: black;
-            margin-bottom: 8px;
-            line-height: 1;
-        }
-
-        .subtitle {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 4px;
-            font-size: 12px;
-            color: black;
-            line-height: 1;
-        }
-
-        .subtitle .brand {
-            opacity: 0.6;
-        }
-
-        .subtitle .feat {
-            opacity: 0.4;
-        }
-
-        .subtitle .author {
-            opacity: 0.6;
-        }
-
-        .subtitle a {
-            color: inherit;
-            text-decoration: none;
-        }
-
-        .subtitle a:hover {
-            text-decoration: underline;
-        }
-
-        .image-container {
-            width: 100%;
-            max-width: 500px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background: #f5f5f5;
-            border: 1px solid rgba(0, 0, 0, 0.04);
-            border-radius: 32px;
-            overflow: hidden;
-            position: relative;
-            aspect-ratio: 1; /* По умолчанию квадратный */
+        .upload-area {
+            border: 2px dashed #d1d5db;
             transition: all 0.3s ease;
         }
-
-        .main-image {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            border-radius: 32px;
-            display: block;
+        .upload-area.dragover {
+            border-color: #3b82f6;
+            background-color: #eff6ff;
         }
-
-        .no-image {
-            color: #666;
-            font-size: 16px;
-            text-align: center;
-        }
-
-        .stats {
-            display: flex;
-            width: 100%;
-            gap: 0;
-        }
-
-        .stat-item {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 24px 8px;
-            text-align: center;
-            gap: 2px;
-        }
-
-        .stat-label {
-            font-size: 12px;
-            opacity: 0.4;
-            color: black;
-            line-height: 1;
-        }
-
-        .stat-value {
-            font-size: 14px;
-            color: black;
-            line-height: 1;
-        }
-
-        .stat-value a {
-            color: #428bf9;
-            text-decoration: none;
-        }
-
-        .stat-value a:hover {
-            text-decoration: underline;
-        }
-
-        .loading {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            padding: 40px;
-            color: #666;
-        }
-
-        .spinner {
-            width: 32px;
-            height: 32px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #428bf9;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        .error {
-            background: #fee;
-            color: #c33;
-            padding: 20px;
-            border-radius: 16px;
-            text-align: center;
-            border: 1px solid #fcc;
-        }
-
-        .refresh-btn {
-            background: #428bf9;
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 16px;
-            transition: background-color 0.2s ease;
-        }
-
-        .refresh-btn:hover {
-            background: #357abd;
-        }
-
-        .footer {
-            margin-top: auto;
-            padding: 16px;
-            text-align: center;
-            font-size: 12px;
-            color: #666;
-        }
-
-        .footer a {
-            color: #428bf9;
-            text-decoration: none;
-        }
-
-        .footer a:hover {
-            text-decoration: underline;
-        }
-
-        @media (max-width: 480px) {
-            .container {
-                padding: 24px 12px;
-            }
-            
-            .title {
-                font-size: 20px;
-            }
-            
-            .subtitle {
-                font-size: 11px;
-            }
-            
-            .stat-item {
-                padding: 20px 4px;
-            }
+        .image-container {
+            aspect-ratio: 1;
+            transition: all 0.3s ease;
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1 class="title">Прекол дня</h1>
-            <div class="subtitle">
-                <span class="brand"><a href="https://t.me/pereplet_spb" target="_blank">PEREPLËT</a></span>
-                <span class="feat">feat</span>
-                <span class="author"><a href="https://t.me/evgn_ivanov" target="_blank">evgn_ivanov</a></span>
+<body class="bg-gray-50 min-h-screen">
+    <div class="max-w-2xl mx-auto p-6">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-gray-900 mb-2">Прекол дня</h1>
+            <p class="text-gray-600">
+                <span class="opacity-60">PEREPLËT</span>
+                <span class="opacity-40 mx-1">feat</span>
+                <a href="https://t.me/evgn_ivanov" target="_blank" class="opacity-60 hover:opacity-100 transition-opacity">evgn_ivanov</a>
+            </p>
+        </div>
+
+        <!-- Upload Form -->
+        <div class="bg-white rounded-2xl p-6 mb-6 shadow-sm border border-gray-200">
+            <div id="uploadArea" class="upload-area rounded-xl p-8 text-center cursor-pointer">
+                <div id="uploadContent">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <p class="text-lg text-gray-600 mb-2">Загрузи прекол</p>
+                    <p class="text-sm text-gray-500">Перетащи картинку сюда или нажми для выбора</p>
+                </div>
+                <input type="file" id="fileInput" class="hidden" accept="image/*">
             </div>
         </div>
 
-        <div class="image-container">
-            <div id="loading" class="loading">
-                <div class="spinner"></div>
-                <p>Загружаю прекол...</p>
-            </div>
-
-            <div id="error" class="error" style="display: none;">
-                <h3>❌ Ошибка загрузки</h3>
-                <p>Не удалось загрузить прекол. Проверьте подключение к интернету.</p>
-                <button class="refresh-btn" onclick="loadImageData()">🔄 Попробовать снова</button>
-            </div>
-
-            <div id="content" style="display: none;">
-                <img id="mainImage" class="main-image" alt="Прекол дня">
-            </div>
-
-            <div id="noImage" class="no-image" style="display: none;">
-                📷 Пока нет преколов
+        <!-- Image Display -->
+        <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-200">
+            <div id="imageContainer" class="image-container bg-gray-100 rounded-xl overflow-hidden border border-gray-200 flex items-center justify-center">
+                <div id="noImage" class="text-center text-gray-500">
+                    <svg class="mx-auto h-16 w-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                    </svg>
+                    <p class="text-lg">Пока нет преколов</p>
+                    <p class="text-sm">Загрузи первую картинку выше</p>
+                </div>
+                <img id="currentImage" class="hidden w-full h-full object-cover" alt="Текущий прекол">
             </div>
         </div>
 
-        <div class="stats">
-            <div class="stat-item">
-                <div class="stat-label" id="timeLabel">-</div>
-                <div class="stat-value" id="uploadedBy">-</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-label">Уже загрузили</div>
-                <div class="stat-value" id="totalImages">-</div>
-            </div>
+        <!-- Footer -->
+        <div class="text-center mt-8 text-sm text-gray-500">
+            <p>💡 Загружай преколы и делись с друзьями!</p>
         </div>
-    </div>
-
-    <div class="footer">
-        <p>💡 Отправь прекол в <a href="https://t.me/pereplet_mem_bot" target="_blank">Telegram бот</a>, чтобы он появился здесь</p>
     </div>
 
     <script>
-        // Функция для загрузки данных о картинках
-        async function loadImageData() {
-            const loading = document.getElementById('loading');
-            const error = document.getElementById('error');
-            const content = document.getElementById('content');
-            const noImage = document.getElementById('noImage');
-            
-            // Показываем загрузку
-            loading.style.display = 'flex';
-            error.style.display = 'none';
-            content.style.display = 'none';
-            noImage.style.display = 'none';
-            
-            try {
-                // Загружаем метаданные
-                const response = await fetch('./images.json');
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                
-                const data = await response.json();
-                
-                // Обновляем статистику
-                document.getElementById('totalImages').textContent = `${data.total_images || 0} преколов`;
-                document.getElementById('uploadedBy').textContent = data.uploaded_by || 'Неизвестно';
-                document.getElementById('timeLabel').textContent = formatTimeAgo(data.last_updated);
-                
-                // Если есть картинка, показываем её
-                if (data.last_image) {
-                    const mainImage = document.getElementById('mainImage');
-                    const imageContainer = document.querySelector('.image-container');
-                    
-                    mainImage.src = `./images/${data.last_image}`;
-                    mainImage.alt = data.last_image;
-                    
-                    // Когда картинка загрузится, обновляем соотношение сторон контейнера
-                    mainImage.onload = function() {
-                        const aspectRatio = this.naturalWidth / this.naturalHeight;
-                        imageContainer.style.aspectRatio = `${aspectRatio}`;
-                        console.log(`Обновлено соотношение сторон: ${aspectRatio} (${this.naturalWidth}x${this.naturalHeight})`);
-                    };
-                    
-                    content.style.display = 'block';
-                } else {
-                    // Сбрасываем соотношение сторон на квадратное когда нет картинки
-                    const imageContainer = document.querySelector('.image-container');
-                    imageContainer.style.aspectRatio = '1';
-                    noImage.style.display = 'block';
-                }
-                
-                loading.style.display = 'none';
-                
-            } catch (err) {
-                console.error('Error loading image data:', err);
-                loading.style.display = 'none';
-                error.style.display = 'block';
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const imageContainer = document.getElementById('imageContainer');
+        const currentImage = document.getElementById('currentImage');
+        const noImage = document.getElementById('noImage');
+
+        // Drag and drop functionality
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
             }
-        }
-        
-        // Функция для форматирования времени
-        function formatTimeAgo(dateString) {
-            if (!dateString) return '-';
-            
-            try {
-                const date = new Date(dateString);
-                const now = new Date();
-                const diffMs = now - date;
-                const diffMins = Math.floor(diffMs / 60000);
-                const diffHours = Math.floor(diffMs / 3600000);
-                const diffDays = Math.floor(diffMs / 86400000);
-                
-                if (diffMins < 1) return 'только что';
-                if (diffMins < 60) return `${diffMins} мин назад`;
-                if (diffHours < 24) return `${diffHours} ч назад`;
-                if (diffDays < 7) return `${diffDays} дн назад`;
-                
-                return date.toLocaleDateString('ru-RU', {
-                    day: 'numeric',
-                    month: 'short'
-                });
-            } catch (e) {
-                return dateString;
+        });
+
+        // Click to upload
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
             }
+        });
+
+        function handleFile(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Пожалуйста, выберите картинку!');
+                return;
+            }
+
+            // Show loading state
+            uploadArea.innerHTML = `
+                <div class="text-center">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p class="text-gray-600">Загружаем прекол...</p>
+                </div>
+            `;
+
+            // Create FormData
+            const formData = new FormData();
+            formData.append('image', file);
+
+            // Upload to GitHub (this would need to be implemented)
+            // For now, just display the image locally
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                displayImage(e.target.result);
+                resetUploadArea();
+            };
+            reader.readAsDataURL(file);
         }
-        
-        // Автоматическое обновление каждые 30 секунд
-        setInterval(loadImageData, 30000);
-        
-        // Загружаем данные при загрузке страницы
-        document.addEventListener('DOMContentLoaded', loadImageData);
+
+        function displayImage(imageSrc) {
+            currentImage.src = imageSrc;
+            currentImage.classList.remove('hidden');
+            noImage.classList.add('hidden');
+            
+            // Update container aspect ratio based on image
+            currentImage.onload = function() {
+                const aspectRatio = this.naturalWidth / this.naturalHeight;
+                imageContainer.style.aspectRatio = aspectRatio;
+            };
+        }
+
+        function resetUploadArea() {
+            uploadArea.innerHTML = `
+                <div id="uploadContent">
+                    <svg class="mx-auto h-12 w-12 text-gray-400 mb-4" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <p class="text-lg text-gray-600 mb-2">Загрузи прекол</p>
+                    <p class="text-sm text-gray-500">Перетащи картинку сюда или нажми для выбора</p>
+                </div>
+            `;
+        }
     </script>
 </body>
 </html>
