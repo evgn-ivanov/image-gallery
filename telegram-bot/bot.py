@@ -168,23 +168,36 @@ class ImageBot:
     async def commit_to_github(self, filename: str):
         """Коммит изменений в GitHub"""
         try:
-            # Настраиваем git
-            subprocess.run(['git', 'config', 'user.name', GITHUB_USERNAME], check=True)
-            subprocess.run(['git', 'config', 'user.email', GITHUB_EMAIL], check=True)
+            # Переходим в корень репозитория
+            repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            original_cwd = os.getcwd()
+            os.chdir(repo_root)
             
-            # Добавляем файлы
-            subprocess.run(['git', 'add', '.'], check=True)
-            
-            # Коммитим
-            commit_message = f"Add new image: {filename}"
-            subprocess.run(['git', 'commit', '-m', commit_message], check=True)
-            
-            # Пушим
-            subprocess.run(['git', 'push', 'origin', 'main'], check=True)
+            try:
+                # Настраиваем git
+                subprocess.run(['git', 'config', 'user.name', GITHUB_USERNAME], check=True)
+                subprocess.run(['git', 'config', 'user.email', GITHUB_EMAIL], check=True)
+                
+                # Добавляем файлы
+                subprocess.run(['git', 'add', '.'], check=True)
+                
+                # Коммитим
+                commit_message = f"Add new image: {filename}"
+                subprocess.run(['git', 'commit', '-m', commit_message], check=True)
+                
+                # Пушим
+                subprocess.run(['git', 'push', 'origin', 'main'], check=True)
+                
+            finally:
+                # Возвращаемся в исходную директорию
+                os.chdir(original_cwd)
             
         except subprocess.CalledProcessError as e:
             print(f"Git error: {e}")
-            raise Exception("Ошибка при сохранении в GitHub")
+            print(f"Return code: {e.returncode}")
+            print(f"Command: {e.cmd}")
+            print(f"Output: {e.output}")
+            raise Exception(f"Ошибка при сохранении в GitHub: {e}")
     
     def run(self):
         """Запуск бота"""
