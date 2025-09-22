@@ -266,6 +266,15 @@ class ImageBot:
         """Запуск бота"""
         print("🤖 Запуск Telegram бота...")
         
+        # Принудительно завершаем все webhook'и
+        try:
+            import requests
+            webhook_url = f"https://api.telegram.org/bot{BOT_TOKEN}/deleteWebhook"
+            response = requests.post(webhook_url, data={'drop_pending_updates': True})
+            print(f"Webhook удален: {response.status_code}")
+        except Exception as e:
+            print(f"Ошибка при удалении webhook: {e}")
+        
         # Запускаем HTTP сервер в отдельном потоке для Render
         port = int(os.environ.get('PORT', 8000))
         http_thread = threading.Thread(target=start_http_server, args=(port,), daemon=True)
@@ -275,15 +284,32 @@ class ImageBot:
         print("🤖 Telegram бот запущен...")
         
         # Запускаем Telegram бота с обработкой ошибок
-        try:
-            self.app.run_polling(drop_pending_updates=True)
-        except Exception as e:
-            print(f"Ошибка при запуске бота: {e}")
-            # Ждем 5 секунд и перезапускаем
-            import time
-            time.sleep(5)
-            print("Перезапускаем бота...")
-            self.app.run_polling(drop_pending_updates=True)
+        max_retries = 3
+        retry_count = 0
+        
+        while retry_count < max_retries:
+            try:
+                print(f"Попытка запуска бота #{retry_count + 1}")
+                self.app.run_polling(drop_pending_updates=True, close_loop=False)
+                break
+            except Exception as e:
+                retry_count += 1
+                print(f"Ошибка при запуске бота (попытка {retry_count}): {e}")
+                
+                if "Conflict" in str(e) and "getUpdates" in str(e):
+                    print("Обнаружен конфликт с другим экземпляром бота")
+                    # Ждем дольше при конфликте
+                    import time
+                    time.sleep(10)
+                else:
+                    import time
+                    time.sleep(5)
+                
+                if retry_count >= max_retries:
+                    print("Достигнуто максимальное количество попыток. Бот остановлен.")
+                    break
+                else:
+                    print("Перезапускаем бота...")
 
 if __name__ == '__main__':
     # Проверяем переменные окружения
