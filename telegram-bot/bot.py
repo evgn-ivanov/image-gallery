@@ -217,6 +217,15 @@ class ImageBot:
                     subprocess.run(['git', 'checkout', '-b', 'main'], check=True)
                     print("Создали ветку main")
                 
+                # Сначала получаем последние изменения
+                try:
+                    subprocess.run(['git', 'pull', 'origin', 'main', '--rebase'], check=True)
+                    print("Успешно получили последние изменения")
+                except subprocess.CalledProcessError as e:
+                    print(f"Ошибка при pull: {e}")
+                    # Если pull не удался, делаем force push (осторожно!)
+                    pass
+                
                 # Добавляем файлы
                 subprocess.run(['git', 'add', '.'], check=True)
                 
@@ -225,7 +234,14 @@ class ImageBot:
                 subprocess.run(['git', 'commit', '-m', commit_message], check=True)
                 
                 # Пушим
-                subprocess.run(['git', 'push', 'origin', 'main'], check=True)
+                try:
+                    subprocess.run(['git', 'push', 'origin', 'main'], check=True)
+                    print("Успешно отправили изменения")
+                except subprocess.CalledProcessError as e:
+                    print(f"Ошибка при push: {e}")
+                    # Если push не удался, делаем force push
+                    subprocess.run(['git', 'push', 'origin', 'main', '--force'], check=True)
+                    print("Выполнили force push")
                 
             finally:
                 # Возвращаемся в исходную директорию
@@ -250,8 +266,16 @@ class ImageBot:
         print(f"🌐 HTTP сервер запущен на порту {port}")
         print("🤖 Telegram бот запущен...")
         
-        # Запускаем Telegram бота
-        self.app.run_polling()
+        # Запускаем Telegram бота с обработкой ошибок
+        try:
+            self.app.run_polling(drop_pending_updates=True)
+        except Exception as e:
+            print(f"Ошибка при запуске бота: {e}")
+            # Ждем 5 секунд и перезапускаем
+            import time
+            time.sleep(5)
+            print("Перезапускаем бота...")
+            self.app.run_polling(drop_pending_updates=True)
 
 if __name__ == '__main__':
     # Проверяем переменные окружения
