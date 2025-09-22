@@ -19,8 +19,8 @@ GITHUB_USERNAME = os.getenv('GITHUB_USERNAME')
 GITHUB_EMAIL = os.getenv('GITHUB_EMAIL')
 
 # Папки
-IMAGES_DIR = 'public/images'
-METADATA_FILE = 'public/images.json'
+IMAGES_DIR = 'images'
+METADATA_FILE = 'images.json'
 
 class ImageBot:
     def __init__(self):
