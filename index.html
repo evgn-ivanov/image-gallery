@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Image Gallery</title>
+    <title>Прекол дня</title>
     <style>
         * {
             margin: 0;
@@ -12,80 +12,149 @@
         }
 
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Roboto, sans-serif;
+            background: white;
             min-height: 100vh;
-            padding: 20px;
+            display: flex;
+            flex-direction: column;
         }
 
         .container {
-            max-width: 1200px;
+            width: 100%;
+            max-width: 500px;
             margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
+            padding: 32px 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
         .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 40px;
             text-align: center;
         }
 
-        .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            font-weight: 700;
+        .title {
+            font-size: 24px;
+            font-weight: 900;
+            font-style: italic;
+            color: black;
+            margin-bottom: 8px;
+            line-height: 1;
         }
 
-        .header p {
-            font-size: 1.1rem;
-            opacity: 0.9;
+        .subtitle {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: black;
+            line-height: 1;
+        }
+
+        .subtitle .brand {
+            opacity: 0.6;
+        }
+
+        .subtitle .feat {
+            opacity: 0.4;
+        }
+
+        .subtitle .author {
+            opacity: 0.6;
+        }
+
+        .subtitle a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .subtitle a:hover {
+            text-decoration: underline;
+        }
+
+        .image-container {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #d9d9d9;
+            border-radius: 32px;
+            aspect-ratio: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .main-image {
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 32px;
+        }
+
+        .no-image {
+            color: #666;
+            font-size: 16px;
+            text-align: center;
         }
 
         .stats {
             display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin-top: 20px;
-            flex-wrap: wrap;
+            width: 100%;
+            gap: 0;
         }
 
         .stat-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 8px;
             text-align: center;
-        }
-
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            display: block;
+            gap: 2px;
         }
 
         .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
+            font-size: 12px;
+            opacity: 0.4;
+            color: black;
+            line-height: 1;
         }
 
-        .content {
-            padding: 40px;
+        .stat-value {
+            font-size: 14px;
+            color: black;
+            line-height: 1;
+        }
+
+        .stat-value a {
+            color: #428bf9;
+            text-decoration: none;
+        }
+
+        .stat-value a:hover {
+            text-decoration: underline;
         }
 
         .loading {
-            text-align: center;
-            padding: 60px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 40px;
             color: #666;
         }
 
         .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #667eea;
+            width: 32px;
+            height: 32px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #428bf9;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
         }
 
         @keyframes spin {
@@ -93,103 +162,63 @@
             100% { transform: rotate(360deg); }
         }
 
-        .image-container {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .main-image {
-            max-width: 100%;
-            max-height: 600px;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: transform 0.3s ease;
-        }
-
-        .main-image:hover {
-            transform: scale(1.02);
-        }
-
-        .image-info {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
-        }
-
-        .image-info h3 {
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .image-details {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .detail-item {
-            background: white;
-            padding: 15px;
-            border-radius: 8px;
-            border-left: 4px solid #667eea;
-        }
-
-        .detail-label {
-            font-weight: 600;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        .detail-value {
-            color: #333;
-            margin-top: 5px;
-        }
-
         .error {
             background: #fee;
             color: #c33;
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 16px;
             text-align: center;
             border: 1px solid #fcc;
         }
 
         .refresh-btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #428bf9;
             color: white;
             border: none;
             padding: 12px 24px;
-            border-radius: 25px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 1rem;
-            margin-top: 20px;
-            transition: transform 0.2s ease;
+            font-size: 14px;
+            margin-top: 16px;
+            transition: background-color 0.2s ease;
         }
 
         .refresh-btn:hover {
-            transform: translateY(-2px);
+            background: #357abd;
         }
 
         .footer {
+            margin-top: auto;
+            padding: 16px;
             text-align: center;
-            padding: 20px;
+            font-size: 12px;
             color: #666;
-            border-top: 1px solid #eee;
         }
 
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
+        .footer a {
+            color: #428bf9;
+            text-decoration: none;
+        }
+
+        .footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 24px 12px;
             }
             
-            .stats {
-                gap: 20px;
+            .title {
+                font-size: 20px;
             }
             
-            .content {
-                padding: 20px;
+            .subtitle {
+                font-size: 11px;
+            }
+            
+            .stat-item {
+                padding: 20px 4px;
             }
         }
     </style>
@@ -197,64 +226,49 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🖼️ Image Gallery</h1>
-            <p>Последняя загруженная картинка</p>
-            <div class="stats">
-                <div class="stat-item">
-                    <span class="stat-number" id="totalImages">-</span>
-                    <span class="stat-label">Всего картинок</span>
-                </div>
-                <div class="stat-item">
-                    <span class="stat-number" id="lastUpdate">-</span>
-                    <span class="stat-label">Последнее обновление</span>
-                </div>
+            <h1 class="title">Прекол дня</h1>
+            <div class="subtitle">
+                <span class="brand"><a href="https://t.me/pereplet_spb" target="_blank">PEREPLËT</a></span>
+                <span class="feat">feat</span>
+                <span class="author"><a href="https://t.me/evgn_ivanov" target="_blank">evgn_ivanov</a></span>
             </div>
         </div>
 
-        <div class="content">
+        <div class="image-container">
             <div id="loading" class="loading">
                 <div class="spinner"></div>
-                <p>Загружаю информацию о картинках...</p>
+                <p>Загружаю прекол...</p>
             </div>
 
             <div id="error" class="error" style="display: none;">
                 <h3>❌ Ошибка загрузки</h3>
-                <p>Не удалось загрузить информацию о картинках. Проверьте подключение к интернету.</p>
+                <p>Не удалось загрузить прекол. Проверьте подключение к интернету.</p>
                 <button class="refresh-btn" onclick="loadImageData()">🔄 Попробовать снова</button>
             </div>
 
             <div id="content" style="display: none;">
-                <div class="image-container">
-                    <img id="mainImage" class="main-image" alt="Последняя загруженная картинка">
-                    
-                    <div class="image-info">
-                        <h3>📋 Информация о картинке</h3>
-                        <div class="image-details">
-                            <div class="detail-item">
-                                <div class="detail-label">Файл</div>
-                                <div class="detail-value" id="fileName">-</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Загружено</div>
-                                <div class="detail-value" id="uploadTime">-</div>
-                            </div>
-                            <div class="detail-item">
-                                <div class="detail-label">Загрузил</div>
-                                <div class="detail-value" id="uploadedBy">-</div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <img id="mainImage" class="main-image" alt="Прекол дня">
+            </div>
 
-                <div style="text-align: center;">
-                    <button class="refresh-btn" onclick="loadImageData()">🔄 Обновить</button>
-                </div>
+            <div id="noImage" class="no-image" style="display: none;">
+                📷 Пока нет преколов
             </div>
         </div>
 
-        <div class="footer">
-            <p>💡 Отправьте картинку в Telegram бот, чтобы она появилась здесь</p>
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label" id="timeLabel">-</div>
+                <div class="stat-value" id="uploadedBy">-</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Уже загрузили</div>
+                <div class="stat-value" id="totalImages">-</div>
+            </div>
         </div>
+    </div>
+
+    <div class="footer">
+        <p>💡 Отправь прекол в <a href="https://t.me/pereplet_mem_bot" target="_blank">Telegram бот</a>, чтобы он появился здесь</p>
     </div>
 
     <script>
@@ -263,11 +277,13 @@
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const content = document.getElementById('content');
+            const noImage = document.getElementById('noImage');
             
             // Показываем загрузку
-            loading.style.display = 'block';
+            loading.style.display = 'flex';
             error.style.display = 'none';
             content.style.display = 'none';
+            noImage.style.display = 'none';
             
             try {
                 // Загружаем метаданные
@@ -279,8 +295,9 @@
                 const data = await response.json();
                 
                 // Обновляем статистику
-                document.getElementById('totalImages').textContent = data.total_images || 0;
-                document.getElementById('lastUpdate').textContent = formatDate(data.last_updated);
+                document.getElementById('totalImages').textContent = `${data.total_images || 0} преколов`;
+                document.getElementById('uploadedBy').textContent = data.uploaded_by || 'Неизвестно';
+                document.getElementById('timeLabel').textContent = formatTimeAgo(data.last_updated);
                 
                 // Если есть картинка, показываем её
                 if (data.last_image) {
@@ -288,22 +305,9 @@
                     mainImage.src = `./images/${data.last_image}`;
                     mainImage.alt = data.last_image;
                     
-                    // Обновляем информацию
-                    document.getElementById('fileName').textContent = data.last_image;
-                    document.getElementById('uploadTime').textContent = formatDate(data.last_updated);
-                    document.getElementById('uploadedBy').textContent = data.uploaded_by || 'Неизвестно';
-                    
-                    // Показываем контент
                     content.style.display = 'block';
                 } else {
-                    // Нет картинок
-                    content.innerHTML = `
-                        <div style="text-align: center; padding: 60px; color: #666;">
-                            <h3>📷 Пока нет картинок</h3>
-                            <p>Отправьте первую картинку в Telegram бот!</p>
-                        </div>
-                    `;
-                    content.style.display = 'block';
+                    noImage.style.display = 'block';
                 }
                 
                 loading.style.display = 'none';
@@ -315,8 +319,8 @@
             }
         }
         
-        // Функция для форматирования даты
-        function formatDate(dateString) {
+        // Функция для форматирования времени
+        function formatTimeAgo(dateString) {
             if (!dateString) return '-';
             
             try {
@@ -333,11 +337,8 @@
                 if (diffDays < 7) return `${diffDays} дн назад`;
                 
                 return date.toLocaleDateString('ru-RU', {
-                    year: 'numeric',
-                    month: 'short',
                     day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit'
+                    month: 'short'
                 });
             } catch (e) {
                 return dateString;
