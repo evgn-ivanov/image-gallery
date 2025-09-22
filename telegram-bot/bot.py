@@ -206,16 +206,24 @@ class ImageBot:
                     current_branch = result.stdout.strip()
                     if not current_branch or current_branch == '':
                         # Мы в detached HEAD, переключаемся на main
-                        subprocess.run(['git', 'checkout', '-b', 'main'], check=True)
-                        print("Переключились на ветку main")
+                        try:
+                            subprocess.run(['git', 'checkout', 'main'], check=True)
+                            print("Переключились на существующую ветку main")
+                        except subprocess.CalledProcessError:
+                            subprocess.run(['git', 'checkout', '-b', 'main'], check=True)
+                            print("Создали новую ветку main")
                     elif current_branch != 'main':
                         # Переключаемся на main
                         subprocess.run(['git', 'checkout', 'main'], check=True)
                         print(f"Переключились с {current_branch} на main")
                 except subprocess.CalledProcessError:
-                    # Создаем ветку main если её нет
-                    subprocess.run(['git', 'checkout', '-b', 'main'], check=True)
-                    print("Создали ветку main")
+                    # Пытаемся переключиться на main, если не получается - создаем
+                    try:
+                        subprocess.run(['git', 'checkout', 'main'], check=True)
+                        print("Переключились на существующую ветку main")
+                    except subprocess.CalledProcessError:
+                        subprocess.run(['git', 'checkout', '-b', 'main'], check=True)
+                        print("Создали новую ветку main")
                 
                 # Сначала получаем последние изменения
                 try:
