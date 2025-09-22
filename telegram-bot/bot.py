@@ -227,12 +227,21 @@ class ImageBot:
                 
                 # Сначала получаем последние изменения
                 try:
+                    # Сначала коммитим локальные изменения
+                    subprocess.run(['git', 'add', '.'], check=True)
+                    subprocess.run(['git', 'commit', '-m', 'Auto-commit before pull'], check=True)
+                    
+                    # Теперь делаем pull
                     subprocess.run(['git', 'pull', 'origin', 'main', '--rebase'], check=True)
                     print("Успешно получили последние изменения")
                 except subprocess.CalledProcessError as e:
                     print(f"Ошибка при pull: {e}")
-                    # Если pull не удался, делаем force push (осторожно!)
-                    pass
+                    # Если pull не удался, делаем обычный pull без rebase
+                    try:
+                        subprocess.run(['git', 'pull', 'origin', 'main'], check=True)
+                        print("Успешно получили изменения без rebase")
+                    except subprocess.CalledProcessError:
+                        print("Pull не удался, продолжаем с локальными изменениями")
                 
                 # Добавляем файлы
                 subprocess.run(['git', 'add', '.'], check=True)
