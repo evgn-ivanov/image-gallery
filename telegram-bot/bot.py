@@ -7,9 +7,11 @@ import os
 import json
 import requests
 import subprocess
+import threading
 from datetime import datetime
 from telegram import Update
 from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+from http.server import HTTPServer, BaseHTTPRequestHandler
 
 # Загружаем переменные окружения из .env файла
 def load_env():
@@ -23,6 +25,24 @@ def load_env():
                     os.environ[key] = value
 
 load_env()
+
+# Простой HTTP сервер для Render
+class HealthHandler(BaseHTTPRequestHandler):
+    def do_GET(self):
+        if self.path == '/health':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(b'Bot is running!')
+        else:
+            self.send_response(404)
+            self.end_headers()
+
+def start_http_server(port):
+    """Запуск HTTP сервера для Render"""
+    server = HTTPServer(('0.0.0.0', port), HealthHandler)
+    print(f"🌐 HTTP сервер запущен на порту {port}")
+    server.serve_forever()
 
 # Конфигурация
 BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
@@ -210,9 +230,16 @@ class ImageBot:
     def run(self):
         """Запуск бота"""
         print("🤖 Запуск Telegram бота...")
-        # Для Render добавляем порт (хотя он не используется для polling)
+        
+        # Запускаем HTTP сервер в отдельном потоке для Render
         port = int(os.environ.get('PORT', 8000))
-        print(f"🌐 Порт: {port}")
+        http_thread = threading.Thread(target=start_http_server, args=(port,), daemon=True)
+        http_thread.start()
+        
+        print(f"🌐 HTTP сервер запущен на порту {port}")
+        print("🤖 Telegram бот запущен...")
+        
+        # Запускаем Telegram бота
         self.app.run_polling()
 
 if __name__ == '__main__':
